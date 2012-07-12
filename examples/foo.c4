@@ -1,0 +1,7 @@
+define print2 [ . . ]
+
+define print .
+
+10 10 10 999 + + print
+
+"hello" .

@@ -1,0 +1,6 @@
+'hello' .
+
+define bar [ true if [ 10 ] 20 ]
+
+bar
+

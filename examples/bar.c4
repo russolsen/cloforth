@@ -1,0 +1,8 @@
+
+define hello [ 'hello' . ]
+
+hello
+
+define bar [ true if [ 'yes!!' . ] 'after' . ]
+
+100 101 102 bar

@@ -1,0 +1,6 @@
+
+define test [  ifelse [ 'yes' . ] [ 'no' . ] ]
+
+true  test
+
+false test
