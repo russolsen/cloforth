@@ -24,7 +24,7 @@
 (defn- get-ch [r]
   #_(println "getting ch from " r)
   (when (and (instance? LineNumberingPushbackReader r) (.atLineStart r))
-    (print ">> ")
+    (print "c4>> ")
     (flush))
   (to-char (.read r)))
 
