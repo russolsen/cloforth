@@ -77,20 +77,20 @@
 (deftest more-complex-expression
   (is (= (stack-from "2 2 + 6 *") [24])))
 
-(deftest define
-  (is (= (stack-from "define ++ [ + + ] 2 3 4 ++") [9])))
+(deftest colon-define
+  (is (= (stack-from ": ++ [ + + ] 2 3 4 ++") [9])))
 
 (deftest nested-calls
-  (is (= (stack-from "define a [ 10 ] define b [ dup ] a b") [10 10])))
+  (is (= (stack-from ": a [ 10 ] : b [ dup ] a b") [10 10])))
 
-(def one-if-true  "define w [ if [ 1 ] ]")
+(def one-if-true  ": w [ if [ 1 ] ]")
 
 (deftest simple-if
   (is (= (stack-from (str one-if-true " true w")) [1]))
   (is (= (stack-from (str one-if-true " false w")) []))
   (is (= (stack-from (str one-if-true " false w 99")) [99])))
 
-(def one-or-two  "define w [ ifelse [ 1 ] [ 2 ] ]")
+(def one-or-two  ": w [ ifelse [ 1 ] [ 2 ] ]")
 
 (deftest ifelse
   (is (= (stack-from (str one-or-two " true w")) [1]))
