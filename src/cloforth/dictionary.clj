@@ -4,13 +4,13 @@
 (defn- to-prim-name [sym]
   (s/replace-first (str sym) "primitive-" "" ))
 
-(defn- map-keys [f h]
+(defn- to-dictionary [h]
   (apply
     hash-map
     (flatten
       (map
-        (fn [[k v]] [(f k) v])
+        (fn [[key value]] [(to-prim-name key) @value])
         h))))
 
 (defn create-dictionary [ns]
-  (map-keys to-prim-name (ns-publics ns)))
+  (to-dictionary (ns-publics ns)))

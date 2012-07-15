@@ -5,7 +5,7 @@
 (defn- x
   "Execute a string as a cloforth program"
   [s]
-  (i/run-string i/clean-env s))
+  (i/run-string (i/clean-env) s))
 
 (defn- stack-from [s]
   (:stack (x s)))

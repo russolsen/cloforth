@@ -6,56 +6,58 @@
             [cloforth.compiler :as comp]
             [cloforth.tokenizer :as tok]])
 
-(defn handle-def [string env]
-  (if-let [word-f ((:dictionary env) string)]
-    (word-f env)))
+(defn inner [program orig-env]
+  #_(println "inner" program)
+  (if (fn? program)
+    (program orig-env)
+    (loop [e (env/init-ip orig-env)]
+      (let [ip (:ip e)]
+        (if (>= ip (count program))
+          (assoc e :ip (:ip orig-env))
+          (let [f (get program ip)
+                new-env (f e)]
+            (recur (env/inc-ip new-env))))))))
 
-(defn handle-number [string env]
-  (if-let [n (tok/to-int string)]
-    (env/stack-push n env)))
+(defn db [msg env] (pp/pprint (str msg (dissoc env :dictionary))))
 
-(defn handle-unknown [string env]
-  (println "Unknown: don't know what to do with" string)
-  env)
-
-(defn handle-word [string env]
-  (or (handle-def string env)
-      (handle-number string env)
-      (handle-unknown string env)))
-
-(defn run [token env]
-  (let [type (:type token)
-        text (:text token)]
-    (case type
-      :string (env/stack-push text env)
-      :word (handle-word text env)
-      :eof (handle-unknown env)
-      (handle-unknown env text))))
-
-(defn repl [env]
-  (let [t (tok/get-token)]
-    (if (= (:type t) :eof)
-      env
-      (recur (run t env)))))
+(defn repl [{dictionary :dictionary :as env}]
+  #_(db "repl"  env)
+  (if (:quit env)
+    env
+    (let [r (:in env)
+          compiled (comp/compile-statement r dictionary )]
+      (if (and (coll? compiled) (empty? compiled)) 
+        env
+        (recur (inner compiled env))))))
 
 (defn dictionary []
   (merge
     (dict/create-dictionary 'cloforth.primitives)
     (dict/create-dictionary 'cloforth.compiler)))
 
-(def clean-env {:dictionary (dictionary) :stack [] :return []})
-
 (defn run-string [env s]
-  (with-in-str s (repl env)))
+  (let [r (java.io.StringReader. s)
+        old_in (:in env)]
+    (assoc ( repl (assoc env :in r)) :in old_in)))
+
+(defn clean-env []
+  {:in *in* :dictionary (dictionary) :stack [] :return [] :ip 0})
+
+(defn run-file [env file]
+  (run-string env (slurp file)))
 
 (defn run-files [env files]
   (if (empty? files)
     env
-    (let [new-env (run-string env (slurp (first files)))]
+    (let [new-env (run-file env (first files))]
       (recur new-env (rest files)))))
 
-(defn -main [ & files]
-  (let [env {:dictionary (dictionary) :stack []}]
-    (if (empty? files)
+(defn main [ & files]
+  (println "FILES" files)
+  (let [env (run-file (clean-env) "init.c4")]
+    (if (or (nil? files) (empty? files))
       (repl env)
       (run-files env files))))
+
+(defn -main [ & files]
+  (apply main files))

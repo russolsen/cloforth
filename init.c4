@@ -1,0 +1,5 @@
+compile [ gettok compile rot set! ] ':' set!
+
+: .nl [ . nl ]
+
+: .lookup [ lookup . nl ]

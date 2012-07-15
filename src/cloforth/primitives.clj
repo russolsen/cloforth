@@ -51,6 +51,37 @@
 
 (defn primitive-= [env] (binary-op env =))
 
+(defn rot [env]
+  (let [a (first (:stack env))
+        b (second (:stack env))
+        env (env/stack-pop (env/stack-pop env))]
+    (env/stack-push b (env/stack-push a env))))
+
+(defn primitive-set! [env]
+  (let [name (first (:stack env))
+        value (second (:stack env))
+        env (env/stack-pop (env/stack-pop env))]
+    (update-in env [:dictionary] assoc name value)))
+
+(defn lookup [env]
+  (unary-op env (fn [name] (get (:dictionary env) name))))
+
+(defn clear [env]
+  (assoc env :stack []))
+
+(defn primitive-quit [env]
+  (assoc env :quit true))
+
+(defn set-env! [env])
+
+(defn primitive-.dict [env]
+  (pp/pprint (:dictionary env))
+  env)
+
+(defn primitive-.stack [env]
+  (pp/pprint (:stack env))
+  env)
+
 (defn hello [env]
   (println "HELLO")
-  (env))
+  env)

@@ -1,0 +1,7 @@
+'here we go' .
+
+compile  [ hello ] 'www' set!
+
+'-------------------'  .
+
+www
