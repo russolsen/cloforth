@@ -40,11 +40,13 @@
         old_in (:in env)]
     (assoc ( repl (assoc env :in r)) :in old_in)))
 
-(defn clean-env []
-  {:in *in* :dictionary (dictionary) :stack [] :return [] :ip 0})
-
 (defn run-file [env file]
   (run-string env (slurp file)))
+
+(defn clean-env []
+  (run-file
+   {:in *in* :dictionary (dictionary) :stack [] :return [] :ip 0}
+   "init.c4"))
 
 (defn run-files [env files]
   (if (empty? files)
@@ -54,7 +56,7 @@
 
 (defn main [ & files]
   (println "FILES" files)
-  (let [env (run-file (clean-env) "init.c4")]
+  (let [env (clean-env)]
     (if (or (nil? files) (empty? files))
       (repl env)
       (run-files env files))))
