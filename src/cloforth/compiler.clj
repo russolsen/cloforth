@@ -5,11 +5,23 @@
             [cloforth.dictionary :as dict]
             [cloforth.tokenizer :as tok]])
 
+(defn inner [program orig-env]
+  #_(println "inner" program)
+  (if (fn? program)
+    (program orig-env)
+    (loop [e (env/init-ip orig-env)]
+      (let [ip (:ip e)]
+        (if (>= ip (count program))
+          (assoc e :ip (:ip orig-env))
+          (let [f (get program ip)
+                new-env (f e)]
+            (recur (env/inc-ip new-env))))))))
+
 (declare compile-statement)
 
 (defn compile-if [r dictionary]
   (let [body (compile-statement r dictionary)]
-    (concat [prims/primitive-not (partial env/branch (count body))] body)))
+    (vec (concat [prims/primitive-not (partial env/branch (count body))] body))))
 
 (defn compile-ifelse [r dictionary]
   (let [true-part  (compile-statement r dictionary)
@@ -19,12 +31,12 @@
       [prims/primitive-not (partial env/branch 2)] true-part [(partial env/jump 1)] false-part))))
 
 (defn compile-word 
-  "Compile the given word, returning it's function"
+  "Compile the given word, returning a vector of functions"
   [r dictionary text]
   (cond
     (= "if" text) (compile-if r dictionary)
     (= "ifelse" text) (compile-ifelse r dictionary)
-    (dictionary text) (dictionary text)
+    (dictionary text) (partial inner (dictionary text))
     (tok/to-int text) (partial env/stack-push (tok/to-int text))
     :default (println "Don't know what to do with" text)))
 
@@ -64,7 +76,7 @@
       :eof []
       :string (partial env/stack-push (:text token))
       :l-bracket (compile-compound r dictionary)
-      (compile-word r dictionary (:text token)))))
+      (compile-token r dictionary token))))
 
 
 (defn primitive-compile [env]

@@ -6,17 +6,7 @@
             [cloforth.compiler :as comp]
             [cloforth.tokenizer :as tok]])
 
-(defn inner [program orig-env]
-  #_(println "inner" program)
-  (if (fn? program)
-    (program orig-env)
-    (loop [e (env/init-ip orig-env)]
-      (let [ip (:ip e)]
-        (if (>= ip (count program))
-          (assoc e :ip (:ip orig-env))
-          (let [f (get program ip)
-                new-env (f e)]
-            (recur (env/inc-ip new-env))))))))
+
 
 (defn db [msg env] (pp/pprint (str msg (dissoc env :dictionary))))
 
@@ -28,7 +18,7 @@
           compiled (comp/compile-statement r dictionary )]
       (if (and (coll? compiled) (empty? compiled)) 
         env
-        (recur (inner compiled env))))))
+        (recur (comp/inner compiled env))))))
 
 (defn dictionary []
   (merge
