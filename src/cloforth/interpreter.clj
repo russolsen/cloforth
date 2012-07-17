@@ -45,11 +45,11 @@
       (recur new-env (rest files)))))
 
 (defn main [ & files]
-  (println "FILES" files)
   (let [env (clean-env)]
     (if (or (nil? files) (empty? files))
       (repl env)
       (run-files env files))))
 
 (defn -main [ & files]
-  (apply main files))
+  (apply main files)
+  nil)
