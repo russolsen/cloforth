@@ -38,6 +38,7 @@
   (cond
     (eof? ch) {:state :complete :type :eof :text nil}
     (ws? ch)  (recur r (get-ch r) token)
+    (= ch \;) {:state :comment }
     (= ch \') {:state :string     :type :string :text ""}
     (= ch \[)  {:state :complete  :type :l-bracket :text "["}
     (= ch \])  {:state :complete  :type :r-bracket :text "]"}
@@ -55,10 +56,15 @@
     (ws? ch)  (assoc token :state :complete)
     :default  (assoc token :text (str (:text token) ch))))
 
+(defn- handle-comment [ch token]
+  (if (= ch \newline)
+    (assoc token :state :start)
+    token))
 
 (defn- read-token [r token]
   (case (:state token)
     :complete token
+    :comment (recur r (handle-comment (get-ch r) token))
     :start (recur r (handle-start r (get-ch r) token))
     :string (recur r (handle-string (get-ch r) token))
     :word (recur r (handle-word (get-ch r) token))
