@@ -28,7 +28,10 @@
         false-part (compile-statement r dictionary)]
     (vec
      (concat
-      [prims/primitive-not (partial env/branch 2)] true-part [(partial env/jump 1)] false-part))))
+      [prims/primitive-not (partial env/branch (inc  (count true-part)))]
+      true-part
+      [(partial env/jump (count false-part))]
+      false-part))))
 
 (defn compile-word 
   "Compile the given word, returning a vector of functions"
@@ -84,12 +87,6 @@
         r (:in env)
         body (compile-statement r dictionary)]
     (env/stack-push body env)))
-
-#_(defn primitive-define [{r :in dictionary :dictionary :as env}]
-  (let [token (tok/get-token r)
-        name (:text token)
-        body (compile-statement r dictionary)]
-    (env/set! name body env)))
 
 (defn primitive-gettok [{r :in :as env}]
   (let [token (tok/get-token r)]
