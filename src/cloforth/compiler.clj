@@ -19,11 +19,11 @@
 
 (declare compile-statement)
 
-(defn compile-if [r dictionary]
+(defn- compile-if [r dictionary]
   (let [body (compile-statement r dictionary)]
     (vec (concat [prims/primitive-not (partial env/branch (count body))] body))))
 
-(defn compile-ifelse [r dictionary]
+(defn- compile-ifelse [r dictionary]
   (let [true-part  (compile-statement r dictionary)
         false-part (compile-statement r dictionary)]
     (vec
@@ -33,8 +33,8 @@
       [(partial env/jump (count false-part))]
       false-part))))
 
-(defn compile-word 
-  "Compile the given word, returning a vector of functions"
+(defn- compile-word 
+  "Compile the given word, returning either a function or a vector of functions"
   [r dictionary text]
   (cond
     (= "if" text) (compile-if r dictionary)
@@ -54,14 +54,18 @@
       :eof nil
       (println "don't know what to do with" text))))
 
-(defn compile-until 
+(defn- compile-until 
   "Keep compiling words until f-done? is true, returns modified result vector"
   [r dictionary f-done? result]
   (let [token (tok/get-token r)]
     (if (f-done? token)
       result
       (if-let [compiled (compile-token r dictionary token)]
-        (recur r dictionary f-done? (if (coll? compiled) (vec (concat result compiled)) (vec (conj result compiled))))
+        (recur
+         r
+         dictionary
+         f-done?
+         (if (coll? compiled) (vec (concat result compiled)) (vec (conj result compiled))))
         result))))
 
 (defn- compile-compound 
@@ -80,7 +84,6 @@
       :string (partial env/stack-push (:text token))
       :l-bracket (compile-compound r dictionary)
       (compile-token r dictionary token))))
-
 
 (defn primitive-compile [env]
   (let [dictionary (:dictionary env)

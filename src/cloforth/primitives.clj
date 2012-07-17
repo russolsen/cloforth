@@ -1,10 +1,8 @@
 (ns cloforth.primitives
   [:require [clojure.pprint :as pp]
-            [cloforth.environment :as env]])
+   [cloforth.environment :as env]])
 
-(defn dump [env]
-  (pp/pprint env)
-  env)
+(defn dump [env] (pp/pprint env) env)
 
 (defn- binary-op [env f]
   (let [b (first (:stack env))
@@ -19,9 +17,7 @@
   (print (env/stack-top env))
   (env/stack-pop env))
 
-(defn nl [env]
-  (println)
-  env)
+(defn nl [env] (println) env)
 
 (defn primitive-true [env] (env/stack-push true env))
 
@@ -66,34 +62,22 @@
 (defn lookup [env]
   (unary-op env (fn [name] (get (:dictionary env) name))))
 
-(defn ip [env]
-  (env/stack-push (:ip env) env))
+(defn ip [env] (env/stack-push (:ip env) env))
 
 (defn goto [env]
   (let [address (env/stack-top env)]
-    (println "GOTO" (:ip env) address)
-    (println "--> " (select-keys  (env/stack-pop (assoc env :ip address)) [:ip :stack]))
     (env/stack-pop (assoc env :ip address))))
 
-(defn recur [env]
-  (assoc env :ip -1))
+(defn recur [env] (assoc env :ip -1))
 
-(defn clear [env]
-  (assoc env :stack []))
+(defn clear [env] (assoc env :stack []))
 
-(defn quit [env]
-  (assoc env :quit true))
+(defn quit [env] (assoc env :quit true))
 
 (defn set-env! [env])
 
-(defn primitive-.dict [env]
-  (pp/pprint (:dictionary env))
-  env)
+(defn primitive-.dict [env] (pp/pprint (:dictionary env)) env)
 
-(defn primitive-.stack [env]
-  (pp/pprint (:stack env))
-  env)
+(defn primitive-.stack [env] (pp/pprint (:stack env)) env)
 
-(defn hello [env]
-  (println "HELLO")
-  env)
+(defn hello [env] (println "HELLO") env)
