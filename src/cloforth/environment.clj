@@ -15,23 +15,26 @@
        (first (:stack env))))
 
 (defn inc-ip [env]
+  #_(println "inc-ip ip" (:ip env))
+  #_(flush)
   (assoc env :ip (inc (:ip env))))
 
 (defn set! [name value env]
   (update-in env [:dictionary] assoc name value))
 
-(defn jump [n env]
-  (println "jump " n "old ip" (:ip env) "new ip" (+ (:ip env) n))
-  (assoc env :ip (+ (:ip env) n)))
+(defn goto [n env]
+  (assoc env :ip n))
 
-(defn recur [n env]
-  (println "jump " n "old ip" (:ip env) "new ip" (+ (:ip env) n))
-  (assoc env :ip (+ (:ip env) n)))
+(defn jump [n env]
+  (goto (+ (:ip env) n) env))
+
+(defn recur [env]
+  (goto 0 env))
 
 (defn branch [n env]
   (let [top (stack-top env)
         env (stack-pop env)]
-    (println "branch" top (:ip env))
+    #_(println "branch" top (:ip env))
     (if top
       (jump n env)
       env)))
