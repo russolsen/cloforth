@@ -66,10 +66,22 @@
 (defn lookup [env]
   (unary-op env (fn [name] (get (:dictionary env) name))))
 
+(defn ip [env]
+  (env/stack-push (:ip env) env))
+
+(defn goto [env]
+  (let [address (env/stack-top env)]
+    (println "GOTO" (:ip env) address)
+    (println "--> " (select-keys  (env/stack-pop (assoc env :ip address)) [:ip :stack]))
+    (env/stack-pop (assoc env :ip address))))
+
+(defn recur [env]
+  (assoc env :ip -1))
+
 (defn clear [env]
   (assoc env :stack []))
 
-(defn primitive-quit [env]
+(defn quit [env]
   (assoc env :quit true))
 
 (defn set-env! [env])
