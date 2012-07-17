@@ -2,4 +2,8 @@ compile [ gettok compile rot set! ] ':' set!
 
 : .nl [ . nl ]
 
+: .top [ dup . nl ]
+
 : .lookup [ lookup . nl ]
+
+
