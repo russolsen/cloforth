@@ -7,7 +7,7 @@
 (defn- binary-op [env f]
   (let [b (first (:stack env))
         a (second (:stack env))]
-     (env/stack-push (f a b) (env/stack-pop (env/stack-pop env)))))
+     (env/stack-push (f a b) (env/stack-pop 2 env))))
 
 (defn- unary-op [env f]
   (let [x (first (:stack env))]
@@ -50,13 +50,13 @@
 (defn rot [env]
   (let [a (first (:stack env))
         b (second (:stack env))
-        env (env/stack-pop (env/stack-pop env))]
+        env (env/stack-pop 2 env)]
     (env/stack-push b (env/stack-push a env))))
 
 (defn primitive-set! [env]
   (let [name (first (:stack env))
         value (second (:stack env))
-        env (env/stack-pop (env/stack-pop env))]
+        env (env/stack-pop 2 env)]
     (update-in env [:dictionary] assoc name value)))
 
 (defn lookup [env]

@@ -4,10 +4,13 @@
 (defn stack-push [v env]
   (assoc env :stack (vec (cons v (:stack env)))))
 
-(defn stack-pop [env]
-  (if (empty? (:stack env))
+(defn stack-pop
+  ([env]
+     (stack-pop 1 env))
+  ([n env]
+     (if (> n (count (:stack env)))
        (do (println "Stack underflow!!") env)       
-       (assoc env :stack (subvec (:stack env) 1))))
+       (assoc env :stack (subvec (:stack env) n)))))
 
 (defn stack-top [env]
   (if (empty? (:stack env))
