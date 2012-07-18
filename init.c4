@@ -1,9 +1,41 @@
+
+; Create the : word which is a shortcut for
+; defining other word. Use : like this
+; : <word> [ <<defintion>> ]
 compile [ gettok compile rot set! ] ':' set!
 
+; False is not true
+: false [ true not ]
+
+; Print the top of the stack and pop it off
+: . [ print drop ]
+
+; Print a newline
+: nl [ 10 char . ]
+
+; Print the top of the stack followed by a newline
 : .nl [ . nl ]
 
-: .top [ dup . nl ]
+: space [ ' ' . ]
+
+: .top [ print nl ]
 
 : .lookup [ lookup . nl ]
+
+: max [ dup lrot dup lrot rot > ifelse [ drop ] [ rot drop ] ]
+
+: min [ dup lrot dup lrot rot < ifelse [ drop ] [ rot drop ] ]
+
+: 0< [ 0 < ]
+
+: 0= [ 0 = ]
+
+: >0 [ 0 > ]
+
+: 1+ [ 1 + ]
+
+: 1- [ 1 - ]
+
+: 2* [ 2 * ]
 
 

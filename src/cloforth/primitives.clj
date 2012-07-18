@@ -13,25 +13,13 @@
   (let [x (first (:stack env))]
     (env/stack-push (f x) (env/stack-pop env))))
 
-(defn primitive-. [env]
-  (print (env/stack-top env))
-  (env/stack-pop env))
+(defn primitive-print [env] (print (env/stack-top env)) env)
 
-(defn nl [env] (println) env)
+(defn primitive-char [env] (unary-op env char))
 
 (defn primitive-true [env] (env/stack-push true env))
 
-(defn primitive-false [env] (env/stack-push false env))
-
 (defn primitive-not [env] (unary-op env not))
-
-(defn primitive-inc [env] (unary-op env inc))
-
-(defn primitive-dec [env] (unary-op env dec))
-
-(defn primitive-drop [env] (env/stack-pop env))
-
-(defn primitive-dup [env] (env/stack-push (env/stack-top env) env))
 
 (defn primitive-+ [env] (binary-op env +))
 
@@ -47,11 +35,24 @@
 
 (defn primitive-= [env] (binary-op env =))
 
+(defn primitive-mod [env] (binary-op mod =))
+
+(defn primitive-drop [env] (env/stack-pop env))
+
+(defn primitive-dup [env] (env/stack-push (env/stack-top env) env))
+
 (defn rot [env]
   (let [a (first (:stack env))
         b (second (:stack env))
         env (env/stack-pop 2 env)]
     (env/stack-push b (env/stack-push a env))))
+
+(defn lrot [env]
+  (let [c (first (:stack env))
+        b (second (:stack env))
+        a (nth (:stack env) 2)
+        env (env/stack-pop 3 env)]
+    (env/stack-push a (env/stack-push c (env/stack-push b env)))))
 
 (defn primitive-set! [env]
   (let [name (first (:stack env))
@@ -73,8 +74,6 @@
 (defn clear [env] (assoc env :stack []))
 
 (defn quit [env] (assoc env :quit true))
-
-(defn set-env! [env])
 
 (defn primitive-.dict [env] (pp/pprint (:dictionary env)) env)
 

@@ -1,17 +1,10 @@
 (ns cloforth.interpreter
   [:require [clojure.pprint :as pp]
-            [cloforth.environment :as env]
             [cloforth.dictionary :as dict]
             [cloforth.primitives]
-            [cloforth.compiler :as comp]
-            [cloforth.tokenizer :as tok]])
-
-
-
-(defn db [msg env] (pp/pprint (str msg (dissoc env :dictionary))))
+            [cloforth.compiler :as comp]])
 
 (defn repl [{dictionary :dictionary :as env}]
-  #_(db "repl"  env)
   (if (:quit env)
     env
     (let [r (:in env)
@@ -20,23 +13,23 @@
         env
         (recur (comp/inner compiled env))))))
 
-(defn dictionary []
-  (merge
-    (dict/create-dictionary 'cloforth.primitives)
-    (dict/create-dictionary 'cloforth.compiler)))
+(defn run-reader [{old_in :in :as env} r]
+  (assoc ( repl (assoc env :in r)) :in old_in))
 
-(defn run-string [env s]
-  (let [r (java.io.StringReader. s)
-        old_in (:in env)]
-    (assoc ( repl (assoc env :in r)) :in old_in)))
+(defn run-string [env s] (run-reader env (java.io.StringReader. s)))
 
 (defn run-file [env file]
-  (run-string env (slurp file)))
+  (with-open [r (java.io.FileReader. file)]
+    (run-reader env r)))
 
 (defn clean-env []
-  (run-file
-   {:in *in* :dictionary (dictionary) :stack [] :return [] :ip 0}
-   "init.c4"))
+  (let  [ dict
+         (merge
+          (dict/create-dictionary 'cloforth.primitives)
+          (dict/create-dictionary 'cloforth.compiler))]
+    (run-file
+     {:in *in* :dictionary dict :stack [] :return [] :ip 0}
+     "init.c4")))
 
 (defn run-files [env files]
   (if (empty? files)

@@ -19,6 +19,18 @@
 
 (declare compile-statement)
 
+;; experimental
+(defn- compile-while [r dictionary]
+  (let [condition (compile-statement r dictionary)
+        body (compile-statement r dictionary)
+        len-cond (count condition)
+        len-body (count body)]
+    (vec (concat
+          condition
+          [prims/primitive-not (partial env/branch (+ len-body 1))]
+          body
+          [partial env/jump (+ len-body 1 1 len-cond)]))))
+
 (defn- compile-if [r dictionary]
   (let [body (compile-statement r dictionary)]
     (vec (concat [prims/primitive-not (partial env/branch (count body))] body))))
@@ -39,6 +51,7 @@
   (cond
     (= "if" text) (compile-if r dictionary)
     (= "ifelse" text) (compile-ifelse r dictionary)
+    (= "while" text) (compile-while r dictionary)
     (dictionary text) (partial inner (dictionary text))
     (tok/to-int text) (partial env/stack-push (tok/to-int text))
     :default (println "Don't know what to do with" text)))
@@ -78,10 +91,11 @@
     []))
  
 (defn compile-statement [r dictionary]
-  (let [token (tok/get-token r)]
+  (let [token (tok/get-token r)
+        text (:text token)]
     (case (:type token)
       :eof []
-      :string (partial env/stack-push (:text token))
+      :string (partial env/stack-push text)
       :l-bracket (compile-compound r dictionary)
       (compile-token r dictionary token))))
 

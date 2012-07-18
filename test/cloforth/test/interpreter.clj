@@ -61,12 +61,12 @@
   (is (= (stack-from "false not") [true])))
 
 (deftest add-one
-  (is (= (stack-from "1 inc") [2]))
-  (is (= (stack-from "2 inc") [3])))
+  (is (= (stack-from "1 1+") [2]))
+  (is (= (stack-from "2 1+") [3])))
 
 (deftest sub-one
-  (is (= (stack-from "1 dec") [0]))
-  (is (= (stack-from "2 dec") [1])))
+  (is (= (stack-from "1 1-") [0]))
+  (is (= (stack-from "2 1-") [1])))
 
 (deftest dot
   (is (= (output-from "99 .") "99")))
