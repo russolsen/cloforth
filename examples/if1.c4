@@ -1,6 +1,6 @@
 'hello' .
 
-define bar [ true if [ 10 ] 20 ]
+: bar [ true if [ 'its true' .nl  ] 'done' .nl ]
 
 bar
 

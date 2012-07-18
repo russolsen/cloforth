@@ -1,5 +1,5 @@
 
-define test [  ifelse [ 'yes' . ] [ 'no' . ] ]
+: test [  ifelse [ 'yes' . ] [ 'no' . ] ]
 
 true  test
 

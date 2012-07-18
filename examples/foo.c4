@@ -1,7 +1,8 @@
-define print2 [ . . ]
+: print2 [ . . ]
 
-define print .
+100 101 print2 nl
 
-10 10 10 999 + + print
+: print-it .
 
-"hello" .
+10 10 10 999 + + print-it nl
+
