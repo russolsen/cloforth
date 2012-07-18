@@ -3,7 +3,18 @@ cloforth
 
 A little Forth-like language implemented in Clojure
 
-Cloforth is a stack oriented, postfix languages.
+For a couple of hundred lines of Clojure, Cloforth
+is actually pretty capable. It can do basic arithmetic,
+it has if statements, you can define new procedures
+(new 'words' in the jaron of Forth). The most
+interesting part is that the language is built
+around a compile/execute cycle: All Cloforth
+code, even the stuff that you type in to the
+REPL is compiled into an vector of functions
+before it is executed.
+
+
+Cloforth is a stack oriented, postfix language.
 What this means is that numbers just get
 pushed onto the stack, so:
 
