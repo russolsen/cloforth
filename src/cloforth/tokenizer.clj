@@ -2,27 +2,15 @@
   (:import (clojure.lang LineNumberingPushbackReader))
   (:use [clojure.java.io :as jio]))
 
-#_(def pb-reader (atom nil))
-
-#_(defn open [r]
-  (swap! pb-reader (fn [old] (java.io.PushbackReader. r))))
-
-#_(defn pb-reader [r]
-  (java.io.PushbackReader. r))
-
-#_(defn in-reader [] (pb-reader *in*))
-
 (defn to-int [string]
   (try
     (Long/parseLong string)
     (catch Exception e nil)))
 
 (defn- to-char [i]
-#_(println "to char" i)
   (if (< i 0) i (char i)))
 
 (defn- get-ch [r]
-  #_(println "getting ch from " r)
   (when (and (instance? LineNumberingPushbackReader r) (.atLineStart r))
     (print "c4>> ")
     (flush))
