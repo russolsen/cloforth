@@ -1,7 +1,7 @@
 cloforth
 ========
 
-A little Cloforth-like language implemented in Clojure
+A little Forth-like language implemented in Clojure
 
 Cloforth is a stack oriented, postfix languages.
 What this means is that numbers just get
