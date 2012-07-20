@@ -4,8 +4,9 @@
 ; : <word> [ <<defintion>> ]
 compile [ gettok compile rot set! ] ':' set!
 
-; False is not true
-: false [ true not ]
+: true [ 1 1 = ]
+
+: false [ 1 0 = ]
 
 ; Print the top of the stack and pop it off
 : . [ print drop ]
