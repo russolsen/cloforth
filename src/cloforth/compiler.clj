@@ -6,7 +6,7 @@
             [cloforth.tokenizer :as tok]])
 
 (defn inner [program orig-env]
-  #_(println "inner" program)
+  #_(println "inner" program (:ip orig-env))
   (if (fn? program)
     (program orig-env)
     (loop [e (env/init-ip orig-env)]
