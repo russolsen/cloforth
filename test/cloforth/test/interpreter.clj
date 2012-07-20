@@ -74,6 +74,12 @@
 (deftest nl
   (is (= (output-from "nl") "\n")))
 
+(deftest rot
+  (is (= (stack-from "1 2 3 rot") [2 3 1])))
+
+(deftest lrot
+  (is (= (stack-from "1 2 3 lrot") [1 3 2])))
+
 (deftest more-complex-expression
   (is (= (stack-from "2 2 + 6 *") [24])))
 
