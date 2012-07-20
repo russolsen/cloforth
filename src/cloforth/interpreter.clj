@@ -1,6 +1,5 @@
 (ns cloforth.interpreter
-  [:require [clojure.pprint :as pp]
-            [cloforth.dictionary :as dict]
+  [:require [cloforth.dictionary :as dict]
             [cloforth.primitives]
             [cloforth.compiler :as comp]])
 
@@ -14,7 +13,7 @@
         (recur (comp/inner compiled env))))))
 
 (defn run-reader [{old_in :in :as env} r]
-  (assoc ( repl (assoc env :in r)) :in old_in))
+  (assoc (repl (assoc env :in r)) :in old_in))
 
 (defn run-string [env s] (run-reader env (java.io.StringReader. s)))
 
@@ -31,17 +30,11 @@
      {:in *in* :dictionary dict :stack [] :return [] :ip 0}
      "init.c4")))
 
-(defn run-files [env files]
-  (if (empty? files)
-    env
-    (let [new-env (run-file env (first files))]
-      (recur new-env (rest files)))))
-
 (defn main [ & files]
   (let [env (clean-env)]
     (if (or (nil? files) (empty? files))
       (repl env)
-      (run-files env files))))
+      (reduce run-file env files))))
 
 (defn -main [ & files]
   (apply main files)

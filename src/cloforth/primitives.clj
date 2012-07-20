@@ -17,8 +17,6 @@
 
 (defn primitive-char [env] (unary-op env char))
 
-(defn primitive-true [env] (env/stack-push true env))
-
 (defn primitive-not [env] (unary-op env not))
 
 (defn primitive-+ [env] (binary-op env +))
@@ -45,14 +43,19 @@
   (let [a (first (:stack env))
         b (second (:stack env))
         env (env/stack-pop 2 env)]
-    (env/stack-push b (env/stack-push a env))))
+    (->> env
+        (env/stack-push a)
+        (env/stack-push b))))
 
 (defn lrot [env]
   (let [c (first (:stack env))
         b (second (:stack env))
         a (nth (:stack env) 2)
         env (env/stack-pop 3 env)]
-    (env/stack-push a (env/stack-push c (env/stack-push b env)))))
+    (->> env
+         (env/stack-push b)
+         (env/stack-push c)
+         (env/stack-push a))))
 
 (defn primitive-set! [env]
   (let [name (first (:stack env))
@@ -68,6 +71,10 @@
 (defn goto [env]
   (let [address (env/stack-top env)]
     (env/stack-pop (assoc env :ip address))))
+
+(defn jump [env]
+  (let [delta (env/stack-top env)]
+    (env/jump delta (env/stack-pop env))))
 
 (defn recur [env] (assoc env :ip -1))
 

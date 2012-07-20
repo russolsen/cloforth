@@ -18,8 +18,6 @@
        (first (:stack env))))
 
 (defn inc-ip [env]
-  #_(println "inc-ip ip" (:ip env))
-  #_(flush)
   (assoc env :ip (inc (:ip env))))
 
 (defn set! [name value env]
@@ -37,7 +35,6 @@
 (defn branch [n env]
   (let [top (stack-top env)
         env (stack-pop env)]
-    #_(println "branch" top (:ip env))
     (if top
       (jump n env)
       env)))
