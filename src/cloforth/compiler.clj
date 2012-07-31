@@ -5,8 +5,7 @@
             [cloforth.dictionary :as dict]
             [cloforth.tokenizer :as tok]])
 
-(defn inner [program orig-env]
-  #_(println "inner" program (:ip orig-env))
+#_(defn inner [program orig-env]
   (if (fn? program)
     (program orig-env)
     (loop [e (env/init-ip orig-env)]
@@ -16,6 +15,42 @@
           (let [f (get program ip)
                 new-env (f e)]
             (recur (env/inc-ip new-env))))))))
+
+
+(declare inner)
+
+#_(defn execute-one [program env]
+  (println "----execut-one" program (:ip env))
+  (prims/dump env)
+  (cond
+   (fn? program) (program env)
+   (coll? program) (inner program env)))
+
+#_(defn- more-to-execute? [program env]
+  (println "**** more to ex" (coll? program) (< (:ip env) (count program)))
+  (and (coll? program) (< (:ip env) (count program))))
+
+#_(defn inner [program starting-env]
+  (println "inner: " program (:ip starting-env))
+  (loop [new-env (env/inc-ip (execute-one program (assoc starting-env :ip 0)))]
+    (if (more-to-execute? program new-env)
+      (recur (assoc new-env :ip (inc (:ip new-env))))
+      (assoc new-env :ip (:ip starting-env)))))
+
+(defn execute-collection [program env]
+  (if (>= (:ip env) (count program))
+    env
+    (recur program (env/inc-ip (inner (program (:ip env)) env)))))
+
+(defn with-reset-ip [f env]
+  (assoc (f (assoc env :ip 0)) :ip (:ip env)))
+
+(defn inner [program env]
+  #_(println "inner, ip:" (:ip env))
+  (cond
+   (fn? program) (program env)
+   (coll? program) (with-reset-ip #(execute-collection program %) env)
+   :default (throw (str "Dont know what to do with" program))))
 
 (declare compile-statement)
 

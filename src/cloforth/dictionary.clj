@@ -4,6 +4,9 @@
 (defn- to-prim-name [sym]
   (s/replace-first (str sym) "primitive-" "" ))
 
+(defn name-for [value dict]
+  (some #(if (= (val %) value) (key %)) dict))
+
 (defn- to-dictionary [h]
   (apply
     hash-map

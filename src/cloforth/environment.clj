@@ -18,6 +18,7 @@
        (first (:stack env))))
 
 (defn inc-ip [env]
+  #_(println " ****** inc-ip: " (:ip env))
   (assoc env :ip (inc (:ip env))))
 
 (defn set! [name value env]

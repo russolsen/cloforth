@@ -2,7 +2,8 @@
   [:require [clojure.pprint :as pp]
    [cloforth.environment :as env]])
 
-(defn dump [env] (pp/pprint env) env)
+(defn dump [env]
+  (pp/pprint (dissoc env :dictionary :in)))
 
 (defn- binary-op [env f]
   (let [b (first (:stack env))
@@ -61,6 +62,7 @@
   (let [name (first (:stack env))
         value (second (:stack env))
         env (env/stack-pop 2 env)]
+    #_(println "*******prim set" name value)
     (update-in env [:dictionary] assoc name value)))
 
 (defn lookup [env]
@@ -82,7 +84,7 @@
 
 (defn quit [env] (assoc env :quit true))
 
-(defn primitive-.dict [env] (pp/pprint (:dictionary env)) env)
+(defn primitive-.dict [env] (pp/pprint (apply sorted-map (flatten (seq (:dictionary env))))) env)
 
 (defn primitive-.stack [env] (pp/pprint (:stack env)) env)
 
