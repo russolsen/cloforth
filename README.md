@@ -68,7 +68,3 @@ Thus this:
 
 Defines a new word called 'plus1' that adds
 one to whatever is on the top of the stack.
-
-
-
-
