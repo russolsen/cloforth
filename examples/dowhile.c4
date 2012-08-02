@@ -1,0 +1,5 @@
+
+4
+while [ 1 - dup dup .nl 0 >= ] [ hello ]
+.stack
+

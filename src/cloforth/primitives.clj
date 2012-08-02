@@ -30,6 +30,10 @@
 
 (defn primitive-> [env] (binary-op env >))
 
+(defn primitive-<= [env] (binary-op env <=))
+
+(defn primitive->= [env] (binary-op env >=))
+
 (defn primitive-< [env] (binary-op env <))
 
 (defn primitive-= [env] (binary-op env =))
@@ -76,6 +80,7 @@
 
 (defn jump [env]
   (let [delta (env/stack-top env)]
+    (println "in jump, delta: " delta)
     (env/jump delta (env/stack-pop env))))
 
 (defn recur [env] (assoc env :ip -1))
