@@ -28,21 +28,21 @@
     (ws? ch)  (recur r (get-ch r) token)
     (= ch \;) {:state :comment }
     (= ch \') {:state :string     :type :string :text ""}
-    (= ch \[)  {:state :complete  :type :l-bracket :text "["}
-    (= ch \])  {:state :complete  :type :r-bracket :text "]"}
-    :default  (assoc token :state :word :type :word :text (str ch))))
+    (= ch \[) {:state :complete  :type :l-bracket :text "["}
+    (= ch \]) {:state :complete  :type :r-bracket :text "]"}
+    :else     (assoc token :state :word :type :word :text (str ch))))
 
 (defn- handle-string [ch token]
   (cond
     (eof? ch) (assoc token :state :complete :type :premature-eof)
     (= ch \') (assoc token :state :complete)
-    :default  (assoc token :text (str (:text token) ch))))
+    :else     (assoc token :text (str (:text token) ch))))
 
 (defn- handle-word [ch token]
   (cond
     (eof? ch) (assoc token :state :complete)
     (ws? ch)  (assoc token :state :complete)
-    :default  (assoc token :text (str (:text token) ch))))
+    :else     (assoc token :text (str (:text token) ch))))
 
 (defn- handle-comment [ch token]
   (if (= ch \newline)

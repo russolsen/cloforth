@@ -1,10 +1,7 @@
 (ns cloforth.compiler
-  [:require [clojure.pprint :as pp]
-            [cloforth.environment :as env]
+  [:require [cloforth.environment :as env]
             [cloforth.primitives :as prims]
-            [cloforth.dictionary :as dict]
             [cloforth.tokenizer :as tok]])
-
 
 (declare inner)
 
@@ -20,7 +17,7 @@
 
 (defn pr-program [program]
   (if (coll? program)
-    (doseq [p program] (print " <") (pr-program p) (print "> "))
+    (doseq [p program] (pr-program p))
     (if (:description (meta program))
       (print (:description (meta program)))
       (print (str program " ")))))
@@ -29,9 +26,9 @@
   #_(pr-program program)
   #_(println)
   (cond
-   (fn? program) (program env)
+   (fn? program)   (program env)
    (coll? program) (with-reset-ip #(execute-collection program %) env)
-   :default (throw (str "Dont know what to do with" program))))
+   :else           (throw (str "Dont know what to do with" program))))
 
 (declare compile-statement)
 
@@ -90,7 +87,7 @@
     (= "while" text) (compile-while r dictionary)
     (dictionary text) (compile-word-reference text (dictionary text))
     (tok/to-int text) (compile-push (tok/to-int text))
-    :default (println "Don't know what to do with" text)))
+    :else (println "Don't know what to do with" text)))
 
 (defn- compile-token 
   "Compile the given token, returning a vector of functions"
