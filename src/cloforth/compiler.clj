@@ -28,7 +28,7 @@
   (cond
    (fn? program)   (program env)
    (coll? program) (with-reset-ip #(execute-collection program %) env)
-   :else           (throw (str "Dont know what to do with" program))))
+   :else           (throw (Exception. (str "Dont know what to do with " program)))))
 
 (declare compile-statement)
 
@@ -42,7 +42,6 @@
     (partial env/jump n)
     {:description (str "Jump " n)}))
 
-;; experimental
 (defn compile-while [r dictionary]
   (let [condition (compile-statement r dictionary)
         body (compile-statement r dictionary)

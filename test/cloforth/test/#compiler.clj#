@@ -1,4 +1,3 @@
-
 (ns cloforth.test.compiler
   (:use [cloforth.compiler :as c])
   (:use clojure.test))
@@ -11,11 +10,17 @@
 
 (defn ip-is [expected-value env] (is (= (:ip env) expected-value)))
 
+(deftest broken
+  (is (= 1 2)))
+
 (deftest execute-one-function
   (let [env (c/inner inc-counter starting-env)]
     (is (map? env))
     (is (= 1 (:counter env)))
     (is (= (:ip env) 0))))
+(defmacro when2 [test & body]
+  `(if ~test ()))
+
 
 (deftest execute-one-single-element-vector
   (let [env (c/inner [inc-counter] starting-env)]
