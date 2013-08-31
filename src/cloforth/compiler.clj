@@ -5,12 +5,16 @@
 
 (declare inner)
 
-(defn execute-collection [program env]
+(defn execute-one [program env]
   (if (>= (:ip env) (count program))
-    env
+    nil
     (do
       #_(println "in collection loop ip: " (:ip env))
-      (recur program (env/inc-ip (inner (program (:ip env)) env))))))
+      (env/inc-ip (inner (program (:ip env)) env)))))
+
+(defn execute-collection [program env]
+  (println program env)
+  (take-while #(not (nil? %)) (iterate #(execute-one program %) env)))
 
 (defn with-reset-ip [f env]
   (assoc (f (assoc env :ip 0)) :ip (:ip env)))

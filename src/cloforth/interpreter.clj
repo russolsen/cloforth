@@ -3,15 +3,6 @@
             [cloforth.primitives]
             [cloforth.compiler :as comp]])
 
-(defn repl [{dictionary :dictionary :as env}]
-  (if (:quit env)
-    env
-    (let [r (:in env)
-          compiled (comp/compile-statement r dictionary )]
-      (if (and (coll? compiled) (empty? compiled)) 
-        env
-        (recur (comp/inner compiled env))))))
-
 (defn states [{dictionary :dictionary :as env}]
   (when-not (:quit env)
     (let [r (:in env)
@@ -21,10 +12,17 @@
           (lazy-seq (cons new-env (states new-env))))))))
 
 
+(defn next-state [{dictionary :dictionary :as env}]
+  (when-not (:quit env)
+    (let [r (:in env)
+          compiled (comp/compile-statement r dictionary )]
+      (when-not (and (coll? compiled) (empty? compiled)) 
+        (comp/inner compiled env)))))
+
 (defn repl [env]
-  (if-let [last-env (last (states env))]
-    last-env
-    env))
+  (let [states (take-while #(not (nil? %)) (iterate next-state env))]
+    #_(doseq [s states] (cloforth.primitives/dump s))
+    (last states)))
 
 (defn run-reader [{old_in :in :as env} r]
   (assoc (repl (assoc env :in r)) :in old_in))
@@ -50,6 +48,7 @@
       (repl env)
       (reduce run-file env files))))
 
-(defn -main [ & files]
+(defn
+  -main [ & files]
   (apply main files)
   nil)
