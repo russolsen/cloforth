@@ -3,17 +3,51 @@
             [cloforth.primitives :as prims]
             [cloforth.tokenizer :as tok]])
 
-(declare inner)
 
-(defn execute-collection [program env]
+(defn execute-primitive [program ip env]
+  (if-not (map? env) (throw (Exception. "not a map")))
+  (if (< ip 1)
+    (env/pop-frame (program env))))
+
+(defn execute-one-program-instruction [program ip env]
+  (if (>= ip (count program))
+    (env/pop-frame env)
+    (let [f (program ip)]
+      (f (env/inc-ip env)))))
+
+(defn execute-one
+  "Execute the next program step, return the new env.
+   Pops the return stack if there is nothing left to do."
+  [env]
+  (let [frame (env/peek-frame env)
+        ip (:ip frame)
+        program (:program frame)]
+    (when frame
+      (if (fn? program)
+        (execute-primitive program ip env)
+        (execute-one-program-instruction program ip env)))))
+
+;;(defn execute-one [env] (let [result (xx-execute-one env)] (println "exectute one::::=>" result)))
+
+(defn execute [env]
+  (when (env/peek-frame env)
+    (let [next-state (execute-one env)]
+      (when next-state
+        #_(println "===> Next state:" next-state)
+        (lazy-seq (cons next-state (execute next-state)))))))
+
+(defn execute-program [env program]
+  #_(println "execute program:" program)
+  (cons env (execute (env/push-frame env (env/make-frame program)))))
+
+
+#_(defn execute-collection [program env]
   (if (>= (:ip env) (count program))
     env
     (do
       #_(println "in collection loop ip: " (:ip env))
       (recur program (env/inc-ip (inner (program (:ip env)) env))))))
 
-(defn with-reset-ip [f env]
-  (assoc (f (assoc env :ip 0)) :ip (:ip env)))
 
 (defn pr-program [program]
   (if (coll? program)
@@ -22,7 +56,7 @@
       (print (:description (meta program)))
       (print (str program " ")))))
 
-(defn inner [program env]
+#_(defn inner [program env]
   #_(pr-program program)
   #_(println)
   (cond
@@ -70,12 +104,12 @@
 
 (defn compile-push [value]
   (with-meta
-    (partial env/stack-push value)
+    (fn [env] (env/stack-push env value))
     {:description (str "Push " value)}))
 
 (defn compile-word-reference [name value]
   (with-meta
-    (partial inner value)
+    value
     {:description (str "Call to [" name "]")}))
 
 (defn- compile-word 
@@ -124,11 +158,12 @@
     []))
  
 (defn compile-statement [r dictionary]
+  #_(println "compile statement: " r)
   (let [token (tok/get-token r)
         text (:text token)]
     (case (:type token)
       :eof []
-      :string (partial env/stack-push text)
+      :string (fn [env] (env/stack-push env text))
       :l-bracket (compile-compound r dictionary)
       (compile-token r dictionary token))))
 
@@ -136,13 +171,13 @@
   (let [dictionary (:dictionary env)
         r (:in env)
         body (compile-statement r dictionary)]
-    (env/stack-push body env)))
+    (env/stack-push env body)))
 
 (defn primitive-print-compiled [env]
-  (let [p (env/stack-top env)]
+  (let [p (env/stack-peek env)]
     (pr-program p)
-    (env/stack-pop env)))
+    (env/stack-peek env)))
 
 (defn primitive-gettok [{r :in :as env}]
   (let [token (tok/get-token r)]
-    (env/stack-push (:text token) env)))
+    (env/stack-push env (:text token))))

@@ -8,9 +8,12 @@
     (catch Exception e nil)))
 
 (defn- to-char [i]
+  ;;(println "to char:" i)
   (if (< i 0) i (char i)))
 
 (defn- get-ch [r]
+  ;;(println "get ch: " r)
+  ;;(flush)
   (when (and (instance? LineNumberingPushbackReader r) (.atLineStart r))
     (print "c4>> ")
     (flush))
@@ -50,6 +53,7 @@
     token))
 
 (defn- read-token [r token]
+;;  (println "read token: " r)
   (case (:state token)
     :complete token
     :comment (recur r (handle-comment (get-ch r) token))
