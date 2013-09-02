@@ -1,9 +1,9 @@
-(ns cloforth.interpreter
+(ns cloforth.repl
   [:require [cloforth.dictionary :as dict]
    [cloforth.primitives]
    [cloforth.environment :as env]
    [cloforth.compiler :as comp]
-   [cloforth.environment :as env]
+   [cloforth.execute :as exec]
    [clojure.pprint :as pp]])
 
 (defn repl [env]
@@ -16,7 +16,7 @@
             compiled (comp/compile-statement r dictionary)]
         (if (and (coll? compiled) (empty? compiled)) 
           env
-          (let [result (comp/execute-program env compiled)
+          (let [result (exec/execute-program env compiled)
                 new-env (last result)]
             #_(pp/pprint (map :frame-stack result))
             (recur new-env)))))))
