@@ -101,7 +101,7 @@
      (concat
       [prims/primitive-not (partial env/branch (inc  (count true-part)))]
       true-part
-      [(partial env/jump (count false-part))]
+      [(fn [env] (env/jump env (count false-part)))]
       false-part))))
 
 (defn compile-push [value]

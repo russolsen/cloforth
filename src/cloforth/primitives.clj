@@ -5,14 +5,14 @@
 (defn dump [env]
   (println "======")
   (println "stack:" (:stack env))
-  (println "frame statck:" (:frame-stack env))
+  (println "frame stack:" (:frame-stack env))
   (println "dict keys:" (sort (keys (:dictionary env))))
   (println "======")
   env)
 
 (defn- binary-op [env f]
-  (let [b (env/stack-nth env 1)
-        a (env/stack-nth env 0)]
+  (let [b (env/stack-nth env 0)
+        a (env/stack-nth env 1)]
     (env/stack-push (env/stack-pop 2 env) (f a b) )))
 
 (defn- unary-op [env f]
@@ -47,7 +47,7 @@
 
 (defn primitive-drop [env] (env/stack-pop env))
 
-(defn primitive-dup [env] (env/stack-push (env/stack-peek env) env))
+(defn primitive-dup [env] (env/stack-push env (env/stack-peek env)))
 
 (defn push-one [env] (env/stack-push env 1))
 
@@ -75,7 +75,7 @@
   (let [name (env/stack-nth env 0)
         value (env/stack-nth env 1)
         env (env/stack-pop 2 env)]
-    (println "set: name:" name "value:" value)
+    #_(println "set: name:" name "value:" value)
     (update-in env [:dictionary] assoc name value)))
 
 (defn lookup [env]
