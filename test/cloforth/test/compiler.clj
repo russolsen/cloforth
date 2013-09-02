@@ -4,31 +4,26 @@
   (:require [cloforth.environment :as env]))
 
 
-(def starting-env (env/make-env))
+(def starting-env (assoc (env/make-env) :counter 0))
 
-(defn inc-counter [env] (assoc env :counter (inc (:counter env))))
+(defn inc-counter [env] (update-in env [:counter] inc))
 
-(defn dec-counter [env] (assoc env :counter (dec (:counter env))))
-
-(defn ip-is [expected-value env] (is (= (:ip env) expected-value)))
+(defn dec-counter [env] (update-in env [:counter] dec))
 
 (deftest execute-one-function
-  (let [env (c/execute-program starting-env inc-counter)]
+  (let [env (last (c/execute-program starting-env inc-counter))]
     (is (map? env))
-    (is (= 1 (:counter env)))
-    (is (= (:ip env) 0))))
+    (is (= 1 (:counter env)))))
 
 (deftest execute-one-single-element-vector
-  (let [env (c/execute-program starting-env [inc-counter])]
+  (let [env (last (c/execute-program starting-env [inc-counter]))]
     (is (map? env))
-    (is (= 1 (:counter env)))
-    (is (= (:ip env) 0))))
+    (is (= 1 (:counter env)))))
 
 (deftest execute-one-two-element-vector
-  (let [env (c/execute-program starting-env [inc-counter inc-counter])]
+  (let [env (last (c/execute-program starting-env [inc-counter inc-counter]))]
     (is (map? env))
-    (is (= 2 (:counter env)))
-    (is (= (:ip env) 0))))
+    (is (= 2 (:counter env)))))
 
 
 
