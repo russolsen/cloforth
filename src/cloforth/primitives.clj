@@ -3,8 +3,11 @@
    [cloforth.environment :as env]])
 
 (defn dump [env]
-  (pp/pprint (dissoc env :dictionary :in))
-  (println "dict keys:" (keys (:dictionary env)))
+  (println "======")
+  (println "stack:" (:stack env))
+  (println "frame statck:" (:frame-stack env))
+  (println "dict keys:" (sort (keys (:dictionary env))))
+  (println "======")
   env)
 
 (defn- binary-op [env f]
@@ -72,6 +75,7 @@
   (let [name (env/stack-nth env 0)
         value (env/stack-nth env 1)
         env (env/stack-pop 2 env)]
+    (println "set: name:" name "value:" value)
     (update-in env [:dictionary] assoc name value)))
 
 (defn lookup [env]
@@ -83,10 +87,13 @@
   (let [address (env/stack-peek env)]
     (env/stack-pop (assoc env :ip address))))
 
-#_(defn jump [env]
+(defn jump [env]
   (let [delta (env/stack-peek env)]
     (println "in jump, delta: " delta)
-    (env/jump delta (env/stack-pop env))))
+    (let [new-env (env/jump  (env/stack-pop env) delta)]
+      (println "new env:")
+      (dump new-env)
+      new-env)))
 
 #_(defn recur [env] (assoc env :ip -1))
 
@@ -94,7 +101,12 @@
 
 (defn quit [env] (assoc env :quit true))
 
-(defn primitive-.dict [env] (pp/pprint (apply sorted-map (flatten (seq (:dictionary env))))) env)
+(defn primitive-.dict [env] (pp/pprint (:dictionary env)) env)
+
+(defn primitive-.def [env]
+  (let [word (env/stack-nth env 0)]
+    (pp/pprint (get (:dictionary env) word))
+    (env/stack-pop env)))
 
 (defn primitive-.stack [env] (pp/pprint (:stack env)) env)
 

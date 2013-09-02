@@ -4,12 +4,25 @@
             [cloforth.tokenizer :as tok]])
 
 
+(defn pr-program [program]
+  (if (coll? program)
+    (doseq [p program] (pr-program p))
+    (if (:description (meta program))
+      (print (:description (meta program)))
+      (println (str program " ")))))
+
+
 (defn execute-primitive [program ip env]
-  (if-not (map? env) (throw (Exception. "not a map")))
-  (if (< ip 1)
-    (env/pop-frame (program env))))
+  #(println "exec prim:" program)
+  (if-not (map? env)
+    (throw (Exception. "not a map")))
+  (if (> ip 0)
+    (env/pop-frame env)
+    (let [new-env (program (env/inc-ip env))]
+      new-env)))
 
 (defn execute-one-program-instruction [program ip env]
+  #_(println "exec one prog ins:" program ip)
   (if (>= ip (count program))
     (env/pop-frame env)
     (let [f (program ip)]
@@ -19,6 +32,7 @@
   "Execute the next program step, return the new env.
    Pops the return stack if there is nothing left to do."
   [env]
+  #_(println "execute-one:" (:frame-stack env))
   (let [frame (env/peek-frame env)
         ip (:ip frame)
         program (:program frame)]
@@ -27,44 +41,32 @@
         (execute-primitive program ip env)
         (execute-one-program-instruction program ip env)))))
 
-;;(defn execute-one [env] (let [result (xx-execute-one env)] (println "exectute one::::=>" result)))
-
 (defn execute [env]
+  #_(println "Execute:" (env/peek-frame env))
   (when (env/peek-frame env)
-    (let [next-state (execute-one env)]
-      (when next-state
-        #_(println "===> Next state:" next-state)
-        (lazy-seq (cons next-state (execute next-state)))))))
+    (let [result (execute-one env)]
+      #_(println "execute: result" (dissoc result :dictionary))
+      #_(flush)
+      (when result
+        (lazy-seq (cons env (execute result)))))))
 
 (defn execute-program [env program]
-  #_(println "execute program:" program)
+  #_(println "execute program:")
+  #_(pr-program program)
+  (flush)
   (cons env (execute (env/push-frame env (env/make-frame program)))))
 
 
-#_(defn execute-collection [program env]
-  (if (>= (:ip env) (count program))
-    env
-    (do
-      #_(println "in collection loop ip: " (:ip env))
-      (recur program (env/inc-ip (inner (program (:ip env)) env))))))
-
-
-(defn pr-program [program]
-  (if (coll? program)
-    (doseq [p program] (pr-program p))
-    (if (:description (meta program))
-      (print (:description (meta program)))
-      (print (str program " ")))))
-
-#_(defn inner [program env]
-  #_(pr-program program)
-  #_(println)
-  (cond
-   (fn? program)   (program env)
-   (coll? program) (with-reset-ip #(execute-collection program %) env)
-   :else           (throw (str "Dont know what to do with" program))))
-
 (declare compile-statement)
+
+
+(defn compile-word-reference [name value]
+  (with-meta
+    (fn [env]
+      (let [new-env (env/push-frame env (env/make-frame value))]
+        #_(println "new env:" (dissoc  new-env :dictionary))
+        new-env))
+    {:description (str "Call to [" name "]")}))
 
 (defn compile-branch [n]
   (with-meta
@@ -106,11 +108,6 @@
   (with-meta
     (fn [env] (env/stack-push env value))
     {:description (str "Push " value)}))
-
-(defn compile-word-reference [name value]
-  (with-meta
-    value
-    {:description (str "Call to [" name "]")}))
 
 (defn- compile-word 
   "Compile the given word, returning either a function or a vector of functions"

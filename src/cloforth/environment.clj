@@ -1,6 +1,11 @@
 (ns cloforth.environment
   [:require [clojure.pprint :as pp]])
 
+;; Debugging
+
+(defn prn-env [e] (println (dissoc e :dictionary)))
+
+
 ;; Dictionary functions
 
 (defn set! [name value env]
@@ -32,11 +37,17 @@
   (let [ip (if ip ip 0)]
     {:program program :ip ip}))
 
-(defn push-frame [env context]
-  (update-in env [:frame-stack] conj context))
+(defn push-frame [env frame]
+  (update-in env [:frame-stack] conj frame))
+
+(defn x-pop-frame [env]
+  (update-in env [:frame-stack] pop))
 
 (defn pop-frame [env]
-  (update-in env [:frame-stack] pop))
+  (let [result (x-pop-frame env)]
+    (when (nil? result)
+      (println "******** nil pop frame:" env))
+    result))
 
 (defn peek-frame [env]
   (peek (:frame-stack env)))
